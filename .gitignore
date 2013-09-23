@@ -1,0 +1,17 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+*.lwp
+
+dist
+build
+eggs
+parts
+bin
+var
+config

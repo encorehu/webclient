@@ -125,8 +125,16 @@ class WebBrowser(object):
             self._headers.update({'Referer': referer})
 
         if data:
-            logger.debug( '\n----> Http Request Prepared Data ---->' )
-            logger.debug( 'data: '+data )
+            if isinstance(data,dict):
+                try:
+                    data = urllib.urlencode(data)
+                except:
+                    data = None
+                    logger.error('your POST DATA has unicode, you MUST encode to utf-8')
+
+            if isinstance(data,str):
+                logger.debug( '\n----> Http Request Prepared Data ---->' )
+                logger.debug( 'data: '+data )
 
         req = urllib2.Request(url=url, data=data, headers = self._headers )
 

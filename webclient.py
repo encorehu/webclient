@@ -86,7 +86,7 @@ class WebBrowser(object):
                 "User-Agent":"Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31",
                 "Accept-Charset":'GBK,utf-8;q=0.7,*;q=0.3',
                 "Accept-Language":"zh-cn",
-                "Accept-Encoding":"gzip;deflate",
+                "Accept-Encoding":"gzip,deflate",
                 "Connection":"keep-alive"
     }
 

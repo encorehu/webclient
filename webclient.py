@@ -117,7 +117,7 @@ class WebBrowser(object):
         cookie_string = ';'.join(map(lambda x:'%s=%s'%(x[0],x[1]),self._cookies.items()))
         self.opener.addheaders.append(('Cookie', cookie_string))
 
-    def _request(self, url, data=None, headers=None, cookies=None, referer=None):
+    def _request(self, url, data=None, headers=None, cookies=None, referer=None, ajax = False):
         if headers:
             self._headers.update(headers)
 
@@ -144,6 +144,10 @@ class WebBrowser(object):
                 logger.warning('cookies only support string, which comes from your WebBrowser request header')
 
         ###logger.debug(str(req.header_items()))
+
+        if ajax:
+            if not req.has_header('x-requested-with'):
+                req.add_unredirected_header('x-requested-with', 'XMLHttpRequest')
 
         try:
             response = self.opener.open(req)

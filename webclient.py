@@ -73,7 +73,8 @@ class MyHTTPCookieProcessor(urllib2.HTTPCookieProcessor):
         logger.debug( '\n----> Http Request Prepared Cookies in cookiejar---->' )
         logger.debug( self.cookiejar.as_lwp_str() )
         logger.debug( "    Currently have %d cookies\n" % len(self.cookiejar) )
-
+        #cannot use super, HTTPCookieProcessor isnot new style class
+        #return super(MyHTTPCookieProcessor, self).http_request(request)
         return urllib2.HTTPCookieProcessor.http_request(self, request)
 
     def http_response(self, request, response):
@@ -144,7 +145,7 @@ class WebBrowser(object):
                     # this can avoid cookiejar set request\' s Cookie header.
                     # because this operation is ahead the cookiejar to do the samething
                     # but, attention: the cookies donot saved into cookiejar now.
-                    req.add_unredirected_header("Cookie", cookies) 
+                    req.add_unredirected_header("Cookie", cookies)
                 #else:
                 #    print 'req has header:cookie'
             else:
@@ -170,7 +171,12 @@ class WebBrowser(object):
                 self.cookiejar.save(self.COOKIEFILE)
 
             if response.info().get('Content-Encoding') == 'gzip':
+                #content = gzip.decompress(response.read())
+
                 compressed_data = response.read()
+                ###compressed_stream = StringIO.StringIO()
+                ###compressed_stream.write(response.read())
+                ###compressed_stream.seek(0)
                 compressed_stream = StringIO.StringIO(compressed_data)
                 gzipper = gzip.GzipFile(fileobj=compressed_stream)
                 content = gzipper.read()

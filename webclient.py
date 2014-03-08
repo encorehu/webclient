@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = 'Encore Hu, <huyoo353@126.com>'
+''' for update, goto https://github.com/encorehu/webclient '''
 
 import sys
 import os
@@ -23,7 +24,14 @@ fmt = logging.Formatter('%(message)s')
 sh.setFormatter(fmt)
 
 logger.addHandler(sh)
-
+'''
+http code
+1xx - informational
+2xx - success
+3xx - redirection
+4xx - client error
+5xx - server error
+'''
 class MyHTTPConnection(httplib.HTTPConnection):
     def send(self, s):
         logger.debug('\n----> Http Request Sended ---->')
@@ -58,6 +66,12 @@ class MyHTTPErrorProcessor(urllib2.HTTPErrorProcessor):
 class MyHTTPRedirectHandler(urllib2.HTTPRedirectHandler):
 
     def redirect_request(self, req, fp, code, msg, hdrs,newurl):
+        if req.get_method()=='HEAD':
+            logger.info( 'it jumps!---->\n    %s' % newurl )
+            newreq=urllib2.HTTPRedirectHandler.redirect_request(self, req, fp, code, msg, hdrs, newurl)
+            newreq.get_method = lambda : 'HEAD'
+            return newreq
+        else:
         logger.info( 'it jumps!---->\n    %s' % newurl )
         return urllib2.HTTPRedirectHandler.redirect_request(self, req, fp, code, msg, hdrs,newurl)
 
@@ -70,7 +84,7 @@ class MyHTTPRedirectHandler(urllib2.HTTPRedirectHandler):
 class MyHTTPCookieProcessor(urllib2.HTTPCookieProcessor):
 
     def http_request(self, request):
-        logger.debug( '\n----> Http Request Prepared Cookies in cookiejar---->' )
+        logger.debug( '\n----> Http Request Cookies Prepared in cookiejar---->' )
         logger.debug( self.cookiejar.as_lwp_str() )
         logger.debug( "    Currently have %d cookies\n" % len(self.cookiejar) )
         #cannot use super, HTTPCookieProcessor isnot new style class
@@ -80,6 +94,23 @@ class MyHTTPCookieProcessor(urllib2.HTTPCookieProcessor):
     def http_response(self, request, response):
         logger.debug( "    Currently have %d cookies\n" % len(self.cookiejar) )
         return urllib2.HTTPCookieProcessor.http_response(self, request, response)
+
+class HttpResponse(object):
+    status_code = 0
+    headers     = {}
+    encoding    = ''
+    content     = None
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def json(self):
+        return None
+
+class HeadRequest(urllib2.Request):
+    def get_method(self):
+        return "HEAD"
+
 
 class WebBrowser(object):
 
@@ -110,6 +141,8 @@ class WebBrowser(object):
             # if we have a cookie file already saved
             # then load the cookies into the Cookie Jar
             self.cookiejar.load(self.COOKIEFILE)
+        else:
+            print 'the cookie file(%s) is missing' % self.COOKIEFILE
 
         self.opener = urllib2.build_opener(MyHTTPHandler, MyHTTPRedirectHandler, MyHTTPErrorProcessor, MyHTTPCookieProcessor(self.cookiejar))
 
@@ -118,7 +151,7 @@ class WebBrowser(object):
         cookie_string = ';'.join(map(lambda x:'%s=%s'%(x[0],x[1]),self._cookies.items()))
         self.opener.addheaders.append(('Cookie', cookie_string))
 
-    def _request(self, url, data=None, headers=None, cookies=None, referer=None, ajax = False):
+    def _request(self, url, data=None, headers=None, cookies=None, referer=None, ajax = False, method = 'GET'):
         if headers:
             self._headers.update(headers)
 
@@ -137,6 +170,10 @@ class WebBrowser(object):
                 logger.debug( '\n----> Http Request Prepared Data ---->' )
                 logger.debug( 'data: '+data )
 
+        method = method.upper()
+        if method == 'HEAD':
+            req = HeadRequest(url=url, data=data, headers = self._headers )
+        else:
         req = urllib2.Request(url=url, data=data, headers = self._headers )
 
         if cookies:
@@ -169,6 +206,11 @@ class WebBrowser(object):
         else:
             if os.path.isfile(self.COOKIEFILE):
                 self.cookiejar.save(self.COOKIEFILE)
+            else:
+                try:
+                    self.cookiejar.save(self.COOKIEFILE)
+                except:
+                    pass
 
             if response.info().get('Content-Encoding') == 'gzip':
                 #content = gzip.decompress(response.read())
@@ -188,3 +230,18 @@ class WebBrowser(object):
 
             response.close()
         return content
+
+    def get(self, url, *args, **kwargs):
+        return self._request(url, *args, **kwargs)
+
+    def post(self, url, *args, **kwargs):
+        kwargs.update({'method':'POST'})
+        return self._request(url, *args, **kwargs)
+
+    def head(self, url, *args, **kwargs):
+        kwargs.update({'method':'HEAD'})
+        return self._request(url, *args, **kwargs)
+
+    def exists(self, url, *args, **kwargs):
+        kwargs.update({'method':'HEAD'})
+        return self._request(url, *args, **kwargs)

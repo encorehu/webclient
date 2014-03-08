@@ -46,9 +46,11 @@ class MyHTTPSConnection(httplib.HTTPSConnection):
 
 class MyHTTPHandler(urllib2.HTTPHandler):
     def http_open(self, req):
+        logger.debug(req)
         return self.do_open(MyHTTPConnection, req)
 
     def https_open(self, req):
+        logger.debug(req)
         return self.do_open(MyHTTPSConnection, req)
 
 class MyHTTPErrorProcessor(urllib2.HTTPErrorProcessor):
@@ -132,7 +134,7 @@ class WebBrowser(object):
 
     opener = None
 
-    def __init__(self, cookiejar = None):
+    def __init__(self, cookiejar = None, proxy = None):
 
         if cookiejar is None:
             cookiejar = cookielib.LWPCookieJar()
@@ -144,6 +146,13 @@ class WebBrowser(object):
         else:
             print 'the cookie file(%s) is missing' % self.COOKIEFILE
 
+        if proxy:
+            if proxy.startswith('http://'):
+                proxyserver = proxy
+            else:
+                proxyserver = 'http://%s' % proxy
+            self.opener = urllib2.build_opener(urllib2.ProxyHandler({'http':proxyserver,'https':proxyserver}), MyHTTPHandler, MyHTTPRedirectHandler, MyHTTPErrorProcessor, MyHTTPCookieProcessor(self.cookiejar))
+        else:
         self.opener = urllib2.build_opener(MyHTTPHandler, MyHTTPRedirectHandler, MyHTTPErrorProcessor, MyHTTPCookieProcessor(self.cookiejar))
 
     def _add_cookie(self, key, value):
@@ -228,8 +237,10 @@ class WebBrowser(object):
             #logger.debug( self.cookiejar )
             logger.debug( "    Currently have %d cookies\n" % len(self.cookiejar) )
 
+            headers = response.info()
+
             response.close()
-        return content
+        return content #, headers
 
     def get(self, url, *args, **kwargs):
         return self._request(url, *args, **kwargs)

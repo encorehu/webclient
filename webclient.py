@@ -183,7 +183,7 @@ class WebBrowser(object):
         if method == 'HEAD':
             req = HeadRequest(url=url, data=data, headers = self._headers )
         else:
-        req = urllib2.Request(url=url, data=data, headers = self._headers )
+            req = urllib2.Request(url=url, data=data, headers = self._headers )
 
         if cookies:
             if type(cookies) == str:

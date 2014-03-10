@@ -74,8 +74,8 @@ class MyHTTPRedirectHandler(urllib2.HTTPRedirectHandler):
             newreq.get_method = lambda : 'HEAD'
             return newreq
         else:
-        logger.info( 'it jumps!---->\n    %s' % newurl )
-        return urllib2.HTTPRedirectHandler.redirect_request(self, req, fp, code, msg, hdrs,newurl)
+            logger.info( 'it jumps!---->\n    %s' % newurl )
+            return urllib2.HTTPRedirectHandler.redirect_request(self, req, fp, code, msg, hdrs, newurl)
 
     def http_error_302(self, req, fp, code, msg, headers):
         logger.debug( 'I will jumped')
@@ -153,7 +153,7 @@ class WebBrowser(object):
                 proxyserver = 'http://%s' % proxy
             self.opener = urllib2.build_opener(urllib2.ProxyHandler({'http':proxyserver,'https':proxyserver}), MyHTTPHandler, MyHTTPRedirectHandler, MyHTTPErrorProcessor, MyHTTPCookieProcessor(self.cookiejar))
         else:
-        self.opener = urllib2.build_opener(MyHTTPHandler, MyHTTPRedirectHandler, MyHTTPErrorProcessor, MyHTTPCookieProcessor(self.cookiejar))
+            self.opener = urllib2.build_opener(MyHTTPHandler, MyHTTPRedirectHandler, MyHTTPErrorProcessor, MyHTTPCookieProcessor(self.cookiejar))
 
     def _add_cookie(self, key, value):
         self._cookies.update({key:value})

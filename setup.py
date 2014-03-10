@@ -17,5 +17,5 @@ setup(
         license = "GPL",
         keywords = ("webclient", "egg"),
         platforms = "all",
-        url = "http://ddtcms.com",
-        )
+        url = "https://github.com/encorehu/webclient",
+)

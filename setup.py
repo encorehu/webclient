@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 setup(
         name = "webclient",
         version="0.1.0",
-        packages = find_packages(),
+        #packages = find_packages(),
         zip_safe = False,
 
         description = "a simple webbrowser simulate.",
@@ -18,4 +18,5 @@ setup(
         keywords = ("webclient", "egg"),
         platforms = "all",
         url = "https://github.com/encorehu/webclient",
+        py_modules = ['webclient',]
 )

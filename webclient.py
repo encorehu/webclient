@@ -134,7 +134,11 @@ class WebBrowser(object):
 
     opener = None
 
-    def __init__(self, cookiejar = None, proxy = None):
+    def __init__(self, cookiejar = None, proxy = None, debug=True):
+        self.debug = debug
+
+        if not self.debug:
+            logger.setLevel(logging.INFO)
 
         if cookiejar is None:
             cookiejar = cookielib.LWPCookieJar()

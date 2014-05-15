@@ -69,12 +69,12 @@ class MyHTTPRedirectHandler(urllib2.HTTPRedirectHandler):
 
     def redirect_request(self, req, fp, code, msg, hdrs,newurl):
         if req.get_method()=='HEAD':
-            logger.info( 'it jumps!---->\n    %s' % newurl )
+            logger.debug( 'it jumps!---->\n    %s' % newurl )
             newreq=urllib2.HTTPRedirectHandler.redirect_request(self, req, fp, code, msg, hdrs, newurl)
             newreq.get_method = lambda : 'HEAD'
             return newreq
         else:
-            logger.info( 'it jumps!---->\n    %s' % newurl )
+            logger.debug( 'it jumps!---->\n    %s' % newurl )
             return urllib2.HTTPRedirectHandler.redirect_request(self, req, fp, code, msg, hdrs, newurl)
 
     def http_error_302(self, req, fp, code, msg, headers):

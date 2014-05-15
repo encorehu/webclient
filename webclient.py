@@ -141,7 +141,7 @@ class WebBrowser(object):
             logger.setLevel(logging.INFO)
 
         if cookiejar is None:
-            cookiejar = cookielib.LWPCookieJar()
+            cookiejar = cookielib.LWPCookieJar(filename=self.COOKIEFILE)
         self.cookiejar = cookiejar
         if os.path.isfile(self.COOKIEFILE):
             # if we have a cookie file already saved
@@ -194,6 +194,9 @@ class WebBrowser(object):
                 if not req.has_header("Cookie"):
                     # this can avoid cookiejar set request\' s Cookie header.
                     # because this operation is ahead the cookiejar to do the samething
+                    # cookiejar do this at cookielib.py L1312 add_cookie_header(request)
+                    # if we do this, the cookiejar will not do this, because,
+                    # request.has_header("Cookie") is True now.
                     # but, attention: the cookies donot saved into cookiejar now.
                     req.add_unredirected_header("Cookie", cookies)
                 #else:

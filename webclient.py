@@ -219,6 +219,8 @@ class WebBrowser(object):
             content = 'ERROR %s' % e
         except socket.timeout, e:
             content = 'ERROR %s' % e
+        except socket.error as e:
+            content = 'ERROR %s' % e
         else:
             if os.path.isfile(self.COOKIEFILE):
                 self.cookiejar.save(self.COOKIEFILE)

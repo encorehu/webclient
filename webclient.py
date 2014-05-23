@@ -164,6 +164,32 @@ class WebBrowser(object):
         cookie_string = ';'.join(map(lambda x:'%s=%s'%(x[0],x[1]),self._cookies.items()))
         self.opener.addheaders.append(('Cookie', cookie_string))
 
+    def add_cookie(self, key, value, domain, path='/'):
+        version = 0
+        name = key
+        port = None
+        port_specified=None
+        domain, domain_specified, domain_initial_dot=domain, None, None
+        path, path_specified = path,None
+        secure = None
+        expires = None
+        discard = None
+        comment = None
+        comment_url = None
+        rest = {}
+        c = cookielib.Cookie(version,
+                      name, value,
+                      port, port_specified,
+                      domain, domain_specified, domain_initial_dot,
+                      path, path_specified,
+                      secure,
+                      expires,
+                      discard,
+                      comment,
+                      comment_url,
+                      rest)
+        self.cookiejar.set_cookie(c)
+
     def _request(self, url, data=None, headers=None, cookies=None, referer=None, ajax = False, method = 'GET'):
         if headers:
             self._headers.update(headers)

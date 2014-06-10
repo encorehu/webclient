@@ -11,6 +11,7 @@ import httplib, urllib2, urllib, socket
 import cookielib
 import StringIO
 import gzip
+import zlib
 
 import logging
 
@@ -264,8 +265,12 @@ class WebBrowser(object):
                 ###compressed_stream.write(response.read())
                 ###compressed_stream.seek(0)
                 compressed_stream = StringIO.StringIO(compressed_data)
-                gzipper = gzip.GzipFile(fileobj=compressed_stream)
-                content = gzipper.read()
+                try:
+                    gzipper = gzip.GzipFile(fileobj=compressed_stream)
+                    content = gzipper.read()
+                except IOError: # CRC check failed
+                    decomp = zlib.decompressobj(16+zlib.MAX_WBITS) # or zlib.MAX_WBITS|16 ?
+                    content = decomp.decompress(compressed_data)
             else:
                 content = response.read()
 

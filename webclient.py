@@ -191,6 +191,16 @@ class WebBrowser(object):
                       rest)
         self.cookiejar.set_cookie(c)
 
+    def build_newurl(self, base_url, newpath):
+        if newpath.startswith('http://') or newpath.startswith('https://') :
+            return newpath
+        scheme, netloc, path, parameters, query, fragment = urllib2.urlparse.urlparse(base_url)
+        if not newpath.startswith(scheme):
+            newurl = urllib2.urlparse.urljoin(base_url, newpath)
+        else:
+            newurl = newpath
+        return newurl
+
     def _request(self, url, data=None, headers=None, cookies=None, referer=None, ajax = False, method = 'GET'):
         if headers:
             self._headers.update(headers)
@@ -272,7 +282,10 @@ class WebBrowser(object):
                     decomp = zlib.decompressobj(16+zlib.MAX_WBITS) # or zlib.MAX_WBITS|16 ?
                     content = decomp.decompress(compressed_data)
             else:
-                content = response.read()
+                try:
+                    content = response.read()
+                except socket.timeout as e:
+                    content = 'ERROR %s' % e
 
             #logger.debug( self.cookiejar )
             logger.debug( "    Currently have %d cookies\n" % len(self.cookiejar) )

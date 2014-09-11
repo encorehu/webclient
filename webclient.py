@@ -258,7 +258,7 @@ class WebBrowser(object):
         try:
             response = self.opener.open(req)
         except urllib2.HTTPError as e:
-            content = 'ERROR %s' % e
+            content = 'ERROR %s %s\n%s' % (e.code, e, e.read())
         except urllib2.URLError as e:
             content = 'ERROR %s' % e
         except socket.timeout as e:

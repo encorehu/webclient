@@ -257,11 +257,11 @@ class WebBrowser(object):
 
         try:
             response = self.opener.open(req)
-        except urllib2.HTTPError,e:
+        except urllib2.HTTPError as e:
             content = 'ERROR %s' % e
-        except urllib2.URLError, e:
+        except urllib2.URLError as e:
             content = 'ERROR %s' % e
-        except socket.timeout, e:
+        except socket.timeout as e:
             content = 'ERROR %s' % e
         except socket.error as e:
             content = 'ERROR %s' % e

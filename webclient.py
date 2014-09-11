@@ -288,6 +288,16 @@ class WebBrowser(object):
                 except IOError: # CRC check failed
                     decomp = zlib.decompressobj(16+zlib.MAX_WBITS) # or zlib.MAX_WBITS|16 ?
                     content = decomp.decompress(compressed_data)
+            elif response.info().get('Content-Encoding') == 'deflate':
+
+                compressed_data = response.read()
+                compressed_stream = StringIO.StringIO(compressed_data)
+                try:
+                    gzipper = gzip.GzipFile(fileobj=compressed_stream)
+                    content = gzipper.read()
+                except IOError: # Not a gzipped file
+                    decomp = zlib.decompressobj(-zlib.MAX_WBITS)
+                    content = decomp.decompress(compressed_data)
             else:
                 try:
                     content = response.read()

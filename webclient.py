@@ -213,8 +213,15 @@ class WebBrowser(object):
                 try:
                     data = urllib.urlencode(data)
                 except:
-                    data = None
-                    logger.error('your POST DATA has unicode, you MUST encode to utf-8')
+                    try:
+                        newdata={}
+                        for k,v in data.items():
+                            if isinstance(v, unicode):
+                                v=v.encode('utf-8')
+                            newdata[k]=v
+                        data = urllib.urlencode(newdata)
+                    except:
+                        logger.error('your POST DATA has unicode, you MUST encode to utf-8')
 
             if isinstance(data,str):
                 logger.debug( '\n----> Http Request Prepared Data ---->' )
